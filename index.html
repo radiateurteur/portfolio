@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Radia Altilia — Founding Sales</title>
+    <meta name="description" content="Founding Sales who builds her own GTM tools with AI agents. Explore her workspace." />
+    <meta name="theme-color" content="#0a1a3a" />
+    <meta property="og:title" content="Radia Altilia — Founding Sales" />
+    <meta property="og:description" content="Founding Sales who builds her own GTM tools with AI agents. Explore her workspace." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://radiateurteur.github.io/portfolio/" />
+    <meta property="og:image" content="https://radiateurteur.github.io/portfolio/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A Mac-style lock screen with Radia Altilia's portrait, her name and “Founding Sales”." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Radia Altilia — Founding Sales" />
+    <meta name="twitter:description" content="Founding Sales who builds her own GTM tools with AI agents. Explore her workspace." />
+    <meta name="twitter:image" content="https://radiateurteur.github.io/portfolio/og.png" />
+    <link rel="icon" type="image/png" href="assets/me/favicon.png" />
+    <link rel="apple-touch-icon" href="assets/me/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Urbanist:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="is-locked">
+    <div id="wall" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ───────── Desktop ───────── -->
+    <div id="desktop">
+      <header id="menubar">
+        <div class="mb-left">
+          <button
+            class="mb-glyph"
+            id="mbGlyph"
+            aria-label="System menu"
+            aria-haspopup="true"
+          >
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+              <circle cx="10" cy="10" r="2.2" fill="currentColor" />
+              <path
+                d="M5.6 5.6a6.2 6.2 0 0 0 0 8.8M14.4 5.6a6.2 6.2 0 0 1 0 8.8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+              <path
+                d="M2.9 3.2a10 10 0 0 0 0 13.6M17.1 3.2a10 10 0 0 1 0 13.6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                opacity=".55"
+              />
+            </svg>
+          </button>
+          <span class="avatar mb-me" aria-hidden="true"></span><span class="mb-app" id="mbApp">Radia Altilia</span>
+          <span class="mb-item">File</span><span class="mb-item">Edit</span
+          ><span class="mb-item">View</span><span class="mb-item">Window</span
+          ><span class="mb-item">Help</span>
+        </div>
+        <div class="mb-right">
+          
+          <span class="mb-ic" title="Battery" aria-hidden="true"
+            ><svg viewBox="0 0 28 14" width="25" height="12">
+              <rect
+                x=".7"
+                y=".7"
+                width="23"
+                height="12.6"
+                rx="3.6"
+                fill="none"
+                stroke="currentColor"
+                opacity=".5"
+                stroke-width="1.2"
+              />
+              <rect
+                x="2.4"
+                y="2.4"
+                width="16"
+                height="9.2"
+                rx="2"
+                fill="currentColor"
+              />
+              <path
+                d="M25.4 4.6v4.8c1-.4 1.7-1.3 1.7-2.4s-.7-2-1.7-2.4z"
+                fill="currentColor"
+                opacity=".5"
+              /></svg
+          ></span>
+          <span class="mb-ic" title="Wi‑Fi" aria-hidden="true"
+            ><svg viewBox="0 0 20 15" width="17" height="13">
+              <path
+                d="M10 12.9l2.3-2.6a3.4 3.4 0 0 0-4.6 0z"
+                fill="currentColor"
+              />
+              <path
+                d="M4.6 7.2a7.8 7.8 0 0 1 10.8 0M1.6 4.1a12.2 12.2 0 0 1 16.8 0"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              /></svg
+          ></span>
+          <button
+            class="mb-ic mb-btn"
+            id="spotBtn"
+            aria-label="Search (Command K)"
+            title="Search  ⌘K"
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <circle
+                cx="6.8"
+                cy="6.8"
+                r="4.6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M10.4 10.4L14 14"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <time class="mb-clock" id="mbClock"></time>
+          <button class="mb-ic mb-btn" id="powerBtn" aria-label="Log out" title="Log out Radia…"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 1.8v5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M4.3 4.2a5.4 5.4 0 1 0 7.4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="mb-menu" id="mbMenu" role="menu" hidden>
+          <button role="menuitem" data-act="about">About Radia</button>
+          <button role="menuitem" data-act="claude">Open Claude Code</button>
+          <button role="menuitem" data-act="spotlight">
+            Search… <kbd>⌘K</kbd>
+          </button>
+          <hr />
+          <button role="menuitem" data-act="lock">Lock screen</button>
+          <button role="menuitem" data-act="logout">Log out Radia…</button>
+        </div>
+      </header>
+
+      <div id="icons"></div>
+      <main id="windows" aria-label="Desktop windows"></main>
+      <nav id="dock" aria-label="Dock"></nav>
+      <div id="toasts" aria-live="polite"></div>
+    </div>
+
+    <!-- ───────── Phone feed ───────── -->
+    <div id="feed"></div>
+
+    <!-- ───────── Spotlight ───────── -->
+    <div id="spotlight" hidden>
+      <div class="sp-box" role="dialog" aria-label="Search">
+        <div class="sp-in">
+          <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true">
+            <circle
+              cx="6.8"
+              cy="6.8"
+              r="4.6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M10.4 10.4L14 14"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <input
+            id="spInput"
+            type="text"
+            placeholder="Search apps, agents, actions…"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Search"
+          />
+          <kbd>esc</kbd>
+        </div>
+        <ul class="sp-list" id="spList" role="listbox"></ul>
+      </div>
+    </div>
+
+    <!-- ───────── Quick look (image lightbox) ───────── -->
+    <div id="quicklook" hidden>
+      <figure>
+        <img alt="" />
+        <figcaption></figcaption>
+      </figure>
+    </div>
+
+    <!-- ───────── End card ───────── -->
+    <div id="endcard" hidden></div>
+
+    <!-- ───────── Lock screen ───────── -->
+    <section id="lock" aria-label="Lock screen">
+      <div class="lock-top">
+        <div class="lock-date" id="lockDate"></div>
+        <div class="lock-time" id="lockTime"></div>
+      </div>
+      <div class="lock-user">
+        <div class="avatar avatar--xl"><span id="lockInitials"></span></div>
+        <h1 class="lock-name" id="lockName"></h1>
+        <p class="lock-role" id="lockRole"></p>
+        <form class="lock-form" id="lockForm" autocomplete="off">
+          <div class="lock-pass" aria-hidden="true">
+            <span class="lock-dots" id="lockDots"></span
+            ><span class="lock-caret"></span>
+          </div>
+          <button class="lock-go" type="submit" aria-label="Open session">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path
+                d="M3 8h9M8.5 4.2L12.3 8l-3.8 3.8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </form>
+        <button class="lock-open" id="lockOpen" type="button">
+          Open session <kbd>⏎</kbd>
+        </button>
+      </div>
+      <div class="lock-foot">Portfolio · built at Sillage, 2026</div>
+    </section>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
+      defer
+    ></script>
+    <script src="reach.js" defer></script>
+    <script src="motion.js" defer></script>
+    <script src="flows.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
