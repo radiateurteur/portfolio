@@ -15,8 +15,8 @@
     tagline: "GTM · Product builder",
     company: "Sillage",
     year: "2026",
-    contactUrl: "https://www.linkedin.com/in/radia-altilia",
-    contactLabel: "linkedin.com/in/radia-altilia",
+    contactUrl: "https://www.linkedin.com/in/radia-altilia-54a807276",
+    contactLabel: "linkedin.com/in/radia-altilia-54a807276",
   };
 
   /* ───────── helpers ───────── */

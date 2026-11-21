@@ -47,8 +47,8 @@ const PROFILE = {
   initials: "RA",
   title: "Founding Sales",
   tagline: "GTM · Product builder",
-  contactUrl: "https://www.linkedin.com/in/radia-altilia",
-  contactLabel: "linkedin.com/in/radia-altilia",
+  contactUrl: "https://www.linkedin.com/in/radia-altilia-54a807276",
+  contactLabel: "linkedin.com/in/radia-altilia-54a807276",
   ...
 };
 ```
