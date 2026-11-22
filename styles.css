@@ -6198,3 +6198,46 @@ body.is-mobile #feed::before { content: ""; position: fixed; inset: 0; z-index: 
 .cs--app .cs__viz { overflow: hidden; }
 .gp__hint { color: #b9c7cc; font-size: 13.5px; }
 .gp .gp__hint { color: #b9c7cc; margin: auto; font-size: 13.5px; }
+
+/* Glorious Pipeline · guidance: tour bubbles, what-is-happening line, progress */
+.f-card .gp { position: relative; }
+.gp__help { font-weight: 700; }
+.gp__now { flex: none; margin: 0; padding: 8px 12px; font-size: 12.5px; line-height: 1.4; background: #16303a; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.gp .gp__now { color: #d8eef3; }
+.gp__now::before { content: "What is happening · "; font: 600 10px var(--mono); color: #7fd3e2; text-transform: uppercase; letter-spacing: 0.06em; }
+.gp__seen { margin: 0 2px 2px; display: flex; justify-content: space-between; font: 600 10.5px var(--mono); }
+.gp .gp__seen { color: #8fa3aa; }
+.gp__seen em { font-style: normal; color: #7fe3b3; }
+.gp__prompts button { display: flex; align-items: center; gap: 8px; }
+.gp-tick { flex: none; width: 15px; height: 15px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.28); display: grid; place-items: center; font-style: normal; font-size: 10px; }
+.gp__prompts button.seen .gp-tick { background: #2fb67c; box-shadow: none; color: #06281a; }
+.gp__prompts button.seen .gp-tick::before { content: "✓"; font-weight: 800; }
+.gp__prompts button.pulse { animation: gppulse 1.8s ease-in-out infinite; }
+@keyframes gppulse { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(217, 119, 87, 0.75), 0 0 0 0 rgba(217, 119, 87, 0.5); } 50% { box-shadow: inset 0 0 0 1px rgba(217, 119, 87, 1), 0 0 0 7px rgba(217, 119, 87, 0); } }
+.gp-m--next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; padding-top: 9px; border-top: 1px dashed rgba(255, 255, 255, 0.14); font-size: 12.5px; color: #b9c7cc; }
+.gp-m--next button, .gp-m--next a { padding: 6px 11px; border-radius: 9px; font: 600 12.5px var(--sans); text-decoration: none; background: #d97757; color: #fff; }
+.gp-m--next a { background: #e9b949; color: #2a1c00; }
+.gp-m--next button:hover { background: #e58a6c; }
+.gp-spot { box-shadow: inset 0 0 0 2px #e9b949 !important; }
+.gp-tour { position: absolute; z-index: 30; padding: 12px 13px 10px; border-radius: 13px; background: #fbfaf7; color: #16191b; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 18px 44px rgba(0, 0, 0, 0.5); }
+.gp .gp-tour p { margin: 0 0 9px; font-size: 13.5px; line-height: 1.4; font-weight: 600; color: #16191b; }
+.gp-tour > div { display: flex; align-items: center; gap: 7px; }
+.gp-tour span { flex: 1; font: 500 10.5px var(--mono); color: #7b8791; }
+.gp-tour button { padding: 5px 11px; border-radius: 8px; font: 600 12px var(--sans); color: #4a5861; }
+.gp-tour button[data-t="next"] { background: #0d3b47; color: #fff; }
+.gp-tour button[data-t="skip"]:hover { background: rgba(0, 0, 0, 0.07); }
+.gp-tour::before { content: ""; position: absolute; width: 14px; height: 14px; background: #fbfaf7; transform: rotate(45deg); }
+.gp-tour[data-side="right"]::before { right: -6px; top: 22px; }
+.gp-tour[data-side="left"]::before { left: -6px; top: 22px; }
+.gp-tour[data-side="up"]::before { left: 26px; top: -6px; }
+@media (prefers-reduced-motion: reduce) { .gp__prompts button.pulse { animation: none; box-shadow: inset 0 0 0 2px #d97757; } }
+
+.gp-m--hello { padding: 12px 13px; border: 0; border-left: 3px solid #d97757; border-radius: 4px 12px 12px 4px; background: #16242b; font-size: 13.5px; line-height: 1.5; }
+.gp .gp-m--hello { color: #dfe7ea; }
+.gp-m--hello b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+.gp-m--hello br + b { display: inline; margin: 0; font-size: inherit; }
+.gp-m--hello span { display: inline-block; color: #d97757; font-weight: 700; animation: gpnudge 1.4s ease-in-out infinite; }
+.gp-m--next a { order: 3; background: none; color: #e9b949; padding: 6px 2px; text-decoration: underline; text-underline-offset: 3px; }
+.gp-m--next span:only-of-type + a, .gp-m--next span + a { background: #e9b949; color: #2a1c00; padding: 6px 11px; text-decoration: none; }
+@media (prefers-reduced-motion: reduce) { .gp-m--hello span { animation: none; } }
+.gp-tour[data-side="down"]::before { left: 26px; bottom: -6px; }

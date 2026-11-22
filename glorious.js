@@ -227,9 +227,9 @@
     "The Archivist. Careful, a bit dry, hates duplicates.",
   );
   const PROMPTS = [
-    ["agent", "Create an agent that cleans CRM duplicates"],
-    ["review", "Review my PR"],
     ["send", "Send this email to the prospect"],
+    ["review", "Review my PR"],
+    ["agent", "Create an agent that cleans CRM duplicates"],
     ["score", "Score 200 accounts"],
     ["boussole", "Boussole, set this up at my new company"],
   ];
@@ -308,11 +308,13 @@
           <details class="gp__files" open><summary>Explorer <span>your-gtm-workspace</span></summary><div class="gp__tree"></div></details>
           <section class="gp__editor" aria-label="Editor"><div class="gp__tabs"></div><pre class="gp__code" tabindex="0"></pre></section>
           <section class="gp__chat" aria-label="Claude Code">
-            <header>${bot(26)}<b>Claude Code</b><span class="gp__state"></span><button class="gp__pp" disabled aria-label="Pause">❚❚</button><button class="gp__re" disabled aria-label="Replay">↻</button></header>
-            <div class="gp__msgs" aria-live="polite"><p class="gp__hint">Open a file, or try a prompt <span>↓</span></p></div>
-            <div class="gp__prompts">${PROMPTS.map(([id, t]) => `<button data-run="${id}">${t}</button>`).join("")}</div>
+            <header>${bot(26)}<b>Claude Code</b><span class="gp__state"></span><button class="gp__pp" disabled aria-label="Pause">❚❚</button><button class="gp__re" disabled aria-label="Replay">↻</button><button class="gp__help" aria-label="Show the short tour again">?</button></header>
+            <p class="gp__now" aria-live="polite" hidden></p>
+            <div class="gp__msgs" aria-live="polite"><div class="gp-m gp-m--c gp-m--hello"><b>Hi 👋 This is the AI system I built for a GTM team.</b>Agents that score accounts, write emails and review code, and never send anything without a human OK.<br><b>Want to build yours too?</b> Pick a prompt below and watch. <span>↓</span></div></div>
+            <div class="gp__prompts"><p class="gp__seen"><span>Try a prompt</span><em>0 of ${PROMPTS.length} explored</em></p>${PROMPTS.map(([id, t], i) => `<button data-run="${id}" class="${i ? "" : "pulse"}"><i class="gp-tick" aria-hidden="true"></i>${t}</button>`).join("")}</div>
           </section>
         </div>
+        <div class="gp-tour" role="dialog" aria-label="Short tour" hidden><p></p><div><span></span><button data-t="skip">Skip</button><button data-t="next">Next</button></div></div>
         <footer class="gp__status"><span>⎇ main</span><span>4 guards on</span><span>4 plugs connected</span><span class="gp__sp"></span><span>Markdown</span><span>EN · FR</span></footer>
       </div>`;
     const $ = (s) => root.querySelector(s),
@@ -402,7 +404,9 @@
     }
     tree.addEventListener("click", (e) => {
       const b = e.target.closest(".gp-file");
-      if (b) openFile(b.dataset.path);
+      if (!b) return;
+      openFile(b.dataset.path);
+      if (tourAt === 1) tourStep(2);
     });
 
     /* ── chat ── */
@@ -467,11 +471,21 @@
       );
     }
 
+    /** One short sentence, in plain words, for someone who has never seen Claude Code. */
+    const now = (text) => {
+      const n = $(".gp__now");
+      n.hidden = !text;
+      n.textContent = text || "";
+      if (text && !RM) gsap.fromTo(n, { opacity: 0.3 }, { opacity: 1, duration: 0.3 });
+    };
+
     const SCEN = {
       async agent(q) {
+        now("Claude hands the job to a specialist: an agent that builds other agents.");
         say("On it. Handing this to <b>agent-creator</b>.");
         openFile(A + "agent-creator.md");
         await q.wait(0.9);
+        now("The agent asks two questions before it builds. They are answered for you here.");
         await ask(
           q,
           "agent-creator",
@@ -484,6 +498,7 @@
           "Which voice should it have?",
           "Careful, a bit dry",
         );
+        now("It picks a personality, called a soul, so the new agent always behaves the same way.");
         openFile(S + "create-soul/SKILL.md");
         await tool(
           q,
@@ -492,6 +507,7 @@
           1.1,
           "soul picked: <b>The Archivist</b>",
         );
+        now("It writes the new agent as a file. Watch the explorer on the left.");
         const path = A + "crm-keeper.md";
         const t = tool(q, "Write", path, 1.9);
         files[path] = [];
@@ -499,9 +515,9 @@
           pos = keys.indexOf(A + "copywriter.md");
         const next = {};
         keys.forEach((k, i) => {
-            if (i === pos) next[path] = [];
-            next[k] = files[k];
-          });
+          if (i === pos) next[path] = [];
+          next[k] = files[k];
+        });
         Object.keys(files).forEach((k) => delete files[k]);
         Object.assign(files, next);
         drawTree(path);
@@ -514,11 +530,13 @@
         }
         code.innerHTML = lineHTML(path, files[path]);
         await t;
+        now("Done: a new agent now lives in the workspace.");
         ok(
           "<b>crm-keeper</b> is ready. It appeared in the explorer, soul included.",
         );
       },
       async review(q) {
+        now("Three reviewer agents read the same change at the same time.");
         openFile(S + "code-reviewer/SKILL.md");
         say("Three reviewers, at the same time.");
         await q.wait(0.6);
@@ -528,6 +546,7 @@
           ["specification-reviewer", 2.6, "matches the ticket"],
         ]);
         await q.wait(0.4);
+        now("They merge what they found into one grade: how much of your attention it still needs.");
         add(
           "gp-m--grade",
           `<span>🟢</span><div><b>Merge confidence: high</b><small>0 blocking · 1 suggestion · read in 30 seconds</small></div>`,
@@ -536,18 +555,22 @@
         ok("One message, one grade. You decide.");
       },
       async send(q) {
+        now("Claude tries to send the email by itself.");
         await tool(q, "Bash", "send-email --to prospect", 1.0);
+        now("A guard stops it: nothing reaches a person without a human.");
         openFile(HK + "gtm-send-guard.sh", 4);
         add(
           "gp-m--block",
           `<span>🚫</span><div><b>Blocked by gtm-send-guard</b><small>Drafts only. A human must approve.</small></div>`,
         );
         await q.wait(1.6);
+        now("So the email is kept as a draft, for you to approve.");
         say("Fair. I'll write it, you'll send it.");
         await tool(q, "Write", "drafts/prospect-email.md", 0.9);
         ok("Saved as a draft. It is waiting for you.");
       },
       async score(q) {
+        now("Claude tests on 15 accounts first, before spending on 200.");
         openFile(S + "scoring-grid/SKILL.md", 7);
         say("Pilot first: 15 accounts.");
         await bars(q, [
@@ -557,12 +580,14 @@
             "4 Gold · 6 Silver · 3 Bronze · 2 Excluded",
           ],
         ]);
+        now("It shows the pilot and waits for a yes. It is answered for you here.");
         await ask(
           q,
           "icp-scorer",
           "Looks good? Shall I run the rest?",
           "Yes, run the 200",
         );
+        now("Now the full run, with the same rules.");
         await bars(q, [["full run · 200 accounts", 2.6, "200 scored"]]);
         add(
           "gp-m--tiers",
@@ -580,6 +605,7 @@
         );
         await q.wait(0.9);
         await tool(q, "HubSpot", "bulk update · 200 companies", 0.9);
+        now("Before 200 records are written to the CRM, a guard asks for a backup and a trial run.");
         openFile(HK + "crm-bulk-write-guard.sh", 4);
         add(
           "gp-m--block gp-m--warn",
@@ -588,9 +614,11 @@
         await q.wait(1.3);
         await tool(q, "Bash", "backup companies.csv", 0.8, "backup saved");
         await tool(q, "HubSpot", "dry run", 1.0, "200 would change · 0 errors");
+        now("Done: every account has a tier, and there is a backup to go back to.");
         ok("Tiers written to the CRM, with a backup behind them.");
       },
       async boussole(q) {
+        now("Boussole is the guide agent. It asks three questions about your company.");
         openFile(A + "boussole.md");
         say("Handing this to <b>Boussole</b>, the guide.");
         await q.wait(0.7);
@@ -607,6 +635,7 @@
           "HubSpot and Slack",
         );
         await ask(q, "Boussole", "Who approves before anything is sent?", "Me");
+        now("Then it builds the setup, one file at a time.");
         const steps = [
           ["CLAUDE.md", "house rules written"],
           ["contexte/icp.md", "your target, in plain words"],
@@ -625,6 +654,7 @@
           list.children[k].classList.add("done");
           list.children[k].firstChild.textContent = "✓";
         }
+        now("Done: the whole machine is installed.");
         ok("Your machine is ready. In English or in French.");
       },
     };
@@ -633,9 +663,30 @@
       $(".gp__state").className = "gp__state " + cls;
       $(".gp__state").textContent = txt;
     };
+    const seen = new Set();
+    const touched = () =>
+      $$(".gp__prompts .pulse").forEach((b) => b.classList.remove("pulse"));
+    /** After a scenario: tick it, count it, and point to one not seen yet. */
+    function finished(id) {
+      seen.add(id);
+      $$(".gp__prompts button").forEach((b) =>
+        b.classList.toggle("seen", seen.has(b.dataset.run)),
+      );
+      $(".gp__seen em").textContent =
+        `${seen.size} of ${PROMPTS.length} explored`;
+      const next = PROMPTS.find(([k]) => !seen.has(k));
+      add(
+        "gp-m--next",
+        next
+          ? `<span>Next, try:</span><button data-run="${next[0]}">${next[1]} →</button><a href="${opts.url || "#"}" target="_blank" rel="noopener">Want this for your team? Ask me on LinkedIn ↗</a>`
+          : `<span>You have seen all five.</span><a href="${opts.url || "#"}" target="_blank" rel="noopener">Want this for your team? Ask me on LinkedIn ↗</a>`,
+      );
+    }
     function run(id) {
       if (!SCEN[id]) return;
       seq?.kill();
+      endTour();
+      touched();
       const q = (seq = new Seq());
       last = id;
       msgs.innerHTML = "";
@@ -653,12 +704,135 @@
           if (q.dead) return;
           setState("done", "done");
           pp.disabled = true;
+          finished(id);
         });
     }
-    $(".gp__prompts").addEventListener("click", (e) => {
-      const b = e.target.closest("button");
+    root.querySelector(".gp__chat").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-run]");
       if (b) run(b.dataset.run);
     });
+
+    /* ── a three-bubble tour, shown once ── */
+    const gp = $(".gp"),
+      tourEl = $(".gp-tour");
+    const TOUR = [
+      [
+        ".gp__prompts",
+        "Start here: click a prompt and watch Claude work.",
+        "prompts",
+      ],
+      [".gp__files", "Every file Claude uses lives here. Click one.", "files"],
+      [".gp__editor", "Open files show up here.", "editor"],
+    ];
+    let tourAt = -1,
+      tourCall = null;
+    const store = (v) => {
+      try {
+        if (v === undefined) return localStorage.getItem("gp-tour-done");
+        localStorage.setItem("gp-tour-done", v);
+      } catch (e) {
+        /* private mode: the tour simply shows again */
+      }
+      return null;
+    };
+    function placeTour() {
+      if (tourAt < 0) return;
+      const [sel, , kind] = TOUR[tourAt],
+        t = $(sel).getBoundingClientRect(),
+        c = gp.getBoundingClientRect();
+      const stacked = getComputedStyle($(".gp__ide")).display !== "grid";
+      const w = Math.min(280, c.width - 24),
+        h = tourEl.offsetHeight;
+      let x, y, side;
+      if (stacked) {
+        // on a phone the bubble sits just above what it points at, so it never hides it
+        const above = t.top - c.top - h - 14;
+        side = above >= 8 ? "down" : "up";
+        x = t.left - c.left + 16;
+        y = above >= 8 ? above : t.top - c.top + Math.min(54, t.height - 8);
+      } else if (kind === "prompts") {
+        side = "right";
+        x = t.left - c.left - w - 16;
+        y = t.top - c.top + 34;
+      } else if (kind === "files") {
+        side = "left";
+        x = t.right - c.left + 16;
+        y = t.top - c.top + 70;
+      } else {
+        side = "up";
+        x = t.left - c.left + 60;
+        y = t.top - c.top + 52;
+      }
+      tourEl.style.width = w + "px";
+      tourEl.style.left = Math.max(12, Math.min(c.width - w - 12, x)) + "px";
+      tourEl.style.top = Math.max(8, Math.min(c.height - h - 8, y)) + "px";
+      tourEl.dataset.side = side;
+    }
+    function tourStep(i) {
+      $$(".gp-spot").forEach((s) => s.classList.remove("gp-spot"));
+      if (i >= TOUR.length) return endTour(true);
+      tourAt = i;
+      const target = $(TOUR[i][0]);
+      target.classList.add("gp-spot");
+      if (i === 1 && !$(".gp__files").open) $(".gp__files").open = true;
+      tourEl.hidden = false;
+      tourEl.querySelector("p").textContent = TOUR[i][1];
+      tourEl.querySelector("span").textContent = `${i + 1} of ${TOUR.length}`;
+      tourEl.querySelector('[data-t="next"]').textContent =
+        i === TOUR.length - 1 ? "Got it" : "Next";
+      if (getComputedStyle($(".gp__ide")).display !== "grid" && i > 0)
+        target.scrollIntoView({
+          block: "center",
+          behavior: RM ? "auto" : "smooth",
+        });
+      placeTour();
+      if (!RM)
+        gsap.fromTo(
+          tourEl,
+          { opacity: 0, scale: 0.92 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.3,
+            ease: "back.out(1.6)",
+            clearProps: "transform",
+          },
+        );
+    }
+    function endTour(remember) {
+      tourCall?.kill();
+      if (tourAt < 0 && tourEl.hidden) return;
+      tourAt = -1;
+      tourEl.hidden = true;
+      $$(".gp-spot").forEach((s) => s.classList.remove("gp-spot"));
+      if (remember !== false) store("1");
+    }
+    tourEl.addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      if (b.dataset.t === "skip") endTour(true);
+      else tourStep(tourAt + 1);
+    });
+    $(".gp__help").addEventListener("click", () => tourStep(0));
+    const onResize = () => placeTour();
+    addEventListener("resize", onResize);
+    const startTour = () => {
+      if (!store() && tourAt < 0) tourStep(0);
+    };
+    let io = null;
+    if (matchMedia("(max-width: 760px)").matches) {
+      io = new IntersectionObserver(
+        (es) =>
+          es.forEach((en) => {
+            if (en.isIntersecting) {
+              io.disconnect();
+              startTour();
+            }
+          }),
+        { threshold: 0.35 },
+      );
+      io.observe(gp);
+    } else tourCall = gsap.delayedCall(RM ? 0.1 : 1.0, startTour);
     re.addEventListener("click", () => last && run(last));
     pp.addEventListener("click", () => {
       if (!seq || seq.dead) return;
@@ -676,7 +850,16 @@
     if (matchMedia("(max-width: 760px)").matches) $(".gp__files").open = false;
     drawTree();
     openFile("CLAUDE.md");
-    return { dispose: () => seq?.kill(), run, open: openFile };
+    return {
+      dispose: () => {
+        seq?.kill();
+        tourCall?.kill();
+        io?.disconnect();
+        removeEventListener("resize", onResize);
+      },
+      run,
+      open: openFile,
+    };
   }
 
   window.Glorious = { mount };
