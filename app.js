@@ -739,6 +739,8 @@
     );
     if (id === "content") initShowcase(w, viz);
     if (id === "glorious") {
+      welcomeCall?.kill(); // Captain would cover the prompts the tour points at
+      closeCaptain();
       const glo = Glorious.mount($(".glo-host", viz), { url: PROFILE.contactUrl });
       w.api.glo = glo;
       w.dispose = glo.dispose;
@@ -2229,7 +2231,8 @@
     document.body.dataset.tour = "done";
   }
 
-  const welcome = () => !MOBILE && gsap.delayedCall(RM ? 0.05 : 1.0, captainOpen);
+  let welcomeCall;
+  const welcome = () => !MOBILE && (welcomeCall = gsap.delayedCall(RM ? 0.05 : 1.0, captainOpen));
 
   /** Soft abstract gradient: a few large colour fields drifting very slowly. Drawn small, scaled up. */
 

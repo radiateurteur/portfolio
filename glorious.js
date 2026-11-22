@@ -310,7 +310,7 @@
           <section class="gp__chat" aria-label="Claude Code">
             <header>${bot(26)}<b>Claude Code</b><span class="gp__state"></span><button class="gp__pp" disabled aria-label="Pause">❚❚</button><button class="gp__re" disabled aria-label="Replay">↻</button><button class="gp__help" aria-label="Show the short tour again">?</button></header>
             <p class="gp__now" aria-live="polite" hidden></p>
-            <div class="gp__msgs" aria-live="polite"><div class="gp-m gp-m--c gp-m--hello"><b>Hi 👋 This is the AI system I built for a GTM team.</b>Agents that score accounts, write emails and review code, and never send anything without a human OK.<br><b>Want to build yours too?</b> Pick a prompt below and watch. <span>↓</span></div></div>
+            <div class="gp__msgs" aria-live="polite"><div class="gp-m gp-m--c gp-m--hello"><b>Hi 👋 This is a real GTM infrastructure, run like a mini company.</b>A team of AI agents, each with its own job: one scores accounts, one writes the emails, one keeps the CRM clean, three review the code.<br><b>Want to build yours too?</b> Pick a prompt below and watch. <span>↓</span></div></div>
             <div class="gp__prompts"><p class="gp__seen"><span>Try a prompt</span><em>0 of ${PROMPTS.length} explored</em></p>${PROMPTS.map(([id, t], i) => `<button data-run="${id}" class="${i ? "" : "pulse"}"><i class="gp-tick" aria-hidden="true"></i>${t}</button>`).join("")}</div>
           </section>
         </div>
