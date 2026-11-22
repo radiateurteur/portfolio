@@ -2030,10 +2030,10 @@
     a2: { q: "How do 3 reviewers check code?", say: ["Before a change is merged, three agents read it at the same time: one for security, one for architecture, one against the ticket.", "I asked Captain Jack to ship something so you can see them."], do: (w) => w.api.select("captain") },
     a3: { q: "What's a soul?", say: ["A short text that gives an agent its personality: its voice, what it cares about, what it refuses to do.", "It keeps the agent consistent from one day to the next."] },
     // Glorious Pipeline
-    g1: { q: "What is Glorious Pipeline?", say: ["A whole Claude Code workspace, packed as a kit: rules, agents, skills, guards and plugs.", "What you see is a copy you can click. I opened the house rules for you."], do: (w) => w.api.glo.open("CLAUDE.md") },
-    g2: { q: "How does a team install it?", say: ["They paste one prompt. A guide agent called Boussole then sets it up with them, one question at a time.", "I asked Boussole to start, look at the chat."], do: (w) => w.api.glo.run("boussole") },
+    g1: { q: "What is Glorious Pipeline?", say: ["A GTM infrastructure that runs like a mini company. Each file is a team member, a skill, a guard, or a piece of the company's memory.", "You talk to Claude, the agents do the work. I opened the house rules for you."], do: (w) => w.api.glo.open("CLAUDE.md") },
+    g2: { q: "How does a team install it?", say: ["They start by setting up their company: a guide agent called Boussole asks a few questions and writes the answers into files.", "That is the first prompt here. I started it for you: click the suggested answers."], do: (w) => w.api.glo.run("setup") },
     g3: { q: "What are souls?", say: ["A soul gives an agent its personality: its voice, what it cares about, what it refuses.", "It is the last line of every agent file. I opened one."], do: (w) => w.api.glo.open(".claude/agents/icp-scorer.md") },
-    g4: { q: "What do the guards block?", say: ["Sending anything without a human. Bulk CRM writes without a backup and a dry run. Spending past the credit ceiling. Leaking a teammate's email.", "I asked Claude to send an email so you can watch one fire."], do: (w) => w.api.glo.run("send") },
+    g4: { q: "What do the guards block?", say: ["Less than you think. A guard reads the yes-rules you wrote once. If a rule matches, the action goes out on its own and is logged.", "If no rule matches, the guard asks you first. And one switch turns all of it off. Watch an email go out."], do: (w) => w.api.glo.run("send") },
     // Content & Design
     m1: { q: "How are these animations made?", say: ["They're code, not video: HTML, CSS and a GSAP timeline.", "That's why they stay sharp at any size."] },
     m2: { q: "Who designs them?", say: ["Radia briefs, chooses and iterates. Claude writes the code.", "Same method as Jinx, the visual agent she built at Sillage."] },
@@ -2046,7 +2046,7 @@
     crm: { pill: "How does the routing work?", say: ["This is the plumbing between the product, <b>HubSpot</b> and the sales team."], q: ["c1", "c2", "c3", "c4"] },
     claude: { pill: "What are these agents?", say: ["<b>Claude Code</b> is Anthropic's coding agent. These five agents are Radia's. Pick a prompt in the chat to see one work."], q: ["a1", "a2", "a3"] },
     content: { pill: "How is this made?", say: ["Six short animations, all written in code. Click one to play it."], q: ["m1", "m2", "m3"] },
-    glorious: { pill: "What is Glorious Pipeline?", say: ["This is <b>Glorious Pipeline</b>, Radia's latest project: her agentic workspace, packaged as a kit. Open a file, or send Claude a prompt."], q: ["g1", "g2", "g3", "g4"] },
+    glorious: { pill: "What is Glorious Pipeline?", say: ["This is <b>Glorious Pipeline</b>, Radia's latest project: a GTM infrastructure that runs like a mini company. Set up your company first, then ask Claude for something."], q: ["g1", "g2", "g3", "g4"] },
     about: { pill: "Ask me about Radia", say: ["That's Radia. Founding sales, and the person who built everything on this computer."], q: ["built", "tools", "contact"] },
   };
   let capRun = null, capCtx = "desk";

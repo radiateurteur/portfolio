@@ -23,7 +23,7 @@ Open it through a local server (not by double-clicking the file), so images and 
 | Sillage Reach | A view-only replica of the product: sidebar navigation, Today, Dialer, Inbox, Campaigns, Performance, Events, Settings, mailbox gauge. Buttons that would change data only show "View only — this is a demo". |
 | Data & Scoring | Every tool built in Cargo, drawn as a flow with a record travelling through it. Four groups: Scoring, Enrichment, Pipeline, Knowledge base. |
 | CRM & PLG automation | HubSpot-style diagrams: PLG engine (product + Stripe → HubSpot), inbound routing, retention alerts, CRM structure. |
-| Glorious Pipeline | Her latest project, shown as a small code editor: the workspace files on the left, a file in the middle, Claude Code on the right. Five prompts each play a short scenario (create an agent, review a PR, a guard blocking a send, scoring with a pilot, the guide agent). The kit is private: a LinkedIn button asks for it. |
+| Glorious Pipeline | Her latest project, shown as a small code editor. A first card explains what it is, then the visitor sets up a company (the only prompt open at first): a guide agent asks a few questions and the files fill in. The other prompts then unlock: send an email on a yes-rule, review a PR, create an agent, score accounts. The setup is remembered in the browser. The kit is private: a LinkedIn button asks for it. |
 | Content & Design | Six motion pieces coded in HTML/CSS/GSAP, with a player (play, pause, seek), plus three stills. |
 | Captain | A scripted guide (no AI call). It lives in a pill at the bottom right, knows which app is open, and answers "how does this work?" questions about it. |
 
