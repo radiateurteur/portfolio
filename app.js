@@ -104,6 +104,7 @@
   const tile = (id) => {
     if (id === "about")
       return `<span class="tile tile--about"><span>${PROFILE.initials}</span></span>`;
+    if (id === "glorious") return `<span class="tile tile--glorious"><img src="${A}glorious/loki.webp" alt=""></span>`;
     if (id === "captain") return `<span class="tile tile--captain">${captainSVG(30)}</span>`;
     if (id === "claude")
       return `<span class="tile tile--claude">${mascot(30)}</span>`;
@@ -340,6 +341,27 @@
       outcome: "Brand visuals in minutes instead of hours, and a pipeline the whole team now builds on.",
       viz: "content",
     },
+    glorious: {
+      name: "Glorious Pipeline",
+      sub: "Latest project",
+      kicker: "Latest project · agentic workspace",
+      title: "I turned an internal AI dev machine into a kit any GTM team can <em>install</em>.",
+      lede: "A whole Claude Code workspace, packaged: agents with personalities, a build pipeline, guardrails, and a guide that sets it all up.",
+      problem: "Building with AI agents worked for me, but it lived in one workspace and in my head. Another GTM team could not rebuild it.",
+      built: [
+        "<b>An agent creator, and souls</b>: every agent gets a job, rules and a personality that keeps it consistent.",
+        "<b>A build pipeline</b>: discover → vision → plan → pre-mortem → parallel implementers in isolated worktrees → three AI reviewers (security, architecture, spec) with a 🟢🟡🟠🔴 confidence grade → a visual checker → one final message.",
+        "<b>A red-bin learning loop</b>: every human correction becomes a rule.",
+        "<b>Guardrail hooks</b>: nothing is sent without a human, no bulk CRM write without a backup and a dry run, a credit ceiling, and no teammate's email ever leaves.",
+        "<b>Plugs and timers</b>: MCP connections (HubSpot, Cargo, Slack, Notion…) and scheduled agents through GitHub Actions.",
+        "<b>A GTM layer</b>: example agents (ICP scorer, list builder, CRM keeper, copywriter in each rep's voice, inbound router, reporter) and three reviewers for GTM deliverables: data, tone, compliance.",
+        "<b>Boussole</b>, a guide agent that walks a new Claude session through the whole setup. In English and in French.",
+      ],
+      how: ["Tested by blind audits: a fresh Claude with no context tries to install it, and every stumble becomes a fix."],
+      stack: ["Claude Code", "Skills", "Sub-agents", "Hooks", "MCP", "Git worktrees", "GitHub Actions"],
+      outcome: "A private kit, shared on request. A team pastes one prompt, and a guide agent builds the machine with them.",
+      viz: "glorious",
+    },
   };
 
   const APPS = [
@@ -348,7 +370,7 @@
     ...Object.keys(CASES).map((id) => ({ id, name: CASES[id].name, type: "case" })),
   ];
   const appById = (id) => APPS.find((a) => a.id === id);
-  const DOCK_ITEMS = ["about", "claude", "reach", "data", "crm", "content", "|", "captain"];
+  const DOCK_ITEMS = ["about", "claude", "reach", "data", "crm", "content", "glorious", "|", "captain"];
   const DOCK_NAMES = { captain: "Captain · your guide" };
 
   /* ───────── case-study HTML ───────── */
@@ -439,6 +461,7 @@
           </div>
         </div>
       </div>`,
+    glorious: () => `<div class="glo-host"></div>`,
     content: () => `
       <div class="show">
         <div class="show__grid">
@@ -470,6 +493,7 @@
             <li><b>Scoring and enrichment tools in Cargo</b>: a whole market scored and tiered, contacts verified before any spend.</li>
             <li><b>HubSpot and PLG automation</b>: every sign-up scored and routed with no manual step.</li>
             <li><b>AI agents with Claude Code</b> that the team still runs every week.</li>
+            <li><b>Glorious Pipeline</b>, her latest project: that whole agentic workspace, packaged as a kit any GTM team can install.</li>
           </ul>
           <div class="chips">${["Claude Code", "Cargo", "HubSpot", "n8n", "Next.js / Postgres", "GSAP"].map((x) => `<span class="chip">${x}</span>`).join("")}</div>
           <a class="cta fast__cta" href="${PROFILE.contactUrl}" target="_blank" rel="noopener">Connect on LinkedIn ↗</a>
@@ -731,6 +755,11 @@
       ),
     );
     if (id === "content") initShowcase(w, viz);
+    if (id === "glorious") {
+      const glo = Glorious.mount($(".glo-host", viz), { url: PROFILE.contactUrl });
+      w.api.glo = glo;
+      w.dispose = glo.dispose;
+    }
     const flows = $$(".flows", viz).map((f) => Flows.mountSet(f, f.dataset.set));
     if (flows.length) {
       w.api.flow = flows[0];
@@ -2015,6 +2044,11 @@
     a1: { q: "What are these agents?", say: ["Each one is Claude Code with a job, a set of rules and a name. Jinx makes visuals, Cargo scores accounts, Captain Jack looks after the sequencer.", "Pick a prompt in the chat and watch one work."] },
     a2: { q: "How do 3 reviewers check code?", say: ["Before a change is merged, three agents read it at the same time: one for security, one for architecture, one against the ticket.", "I asked Captain Jack to ship something so you can see them."], do: (w) => w.api.select("captain") },
     a3: { q: "What's a soul?", say: ["A short text that gives an agent its personality: its voice, what it cares about, what it refuses to do.", "It keeps the agent consistent from one day to the next."] },
+    // Glorious Pipeline
+    g1: { q: "What is Glorious Pipeline?", say: ["It's Radia's whole way of working with Claude Code, packed into a kit: agents, rules, guardrails and a build pipeline.", "Any GTM team can install it and get the same machine."], do: (w) => w.api.glo.focus("pipe") },
+    g2: { q: "How does a team install it?", say: ["They open Claude Code in the kit and paste one prompt.", "A guide agent called Boussole then builds the setup with them, step by step. I replayed it for you."], do: (w) => w.api.glo.install() },
+    g3: { q: "What are souls?", say: ["A soul is a short text that gives an agent its personality: its voice, what it cares about, what it refuses to do.", "It makes an agent behave the same way every day."], do: (w) => w.api.glo.focus("souls") },
+    g4: { q: "What do the guards block?", say: ["Four things. Sending anything without a human. Bulk CRM writes without a backup and a dry run.", "Spending past the credit ceiling. And leaking a teammate's email."], do: (w) => w.api.glo.focus("guards") },
     // Content & Design
     m1: { q: "How are these animations made?", say: ["They're code, not video: HTML, CSS and a GSAP timeline.", "That's why they stay sharp at any size."] },
     m2: { q: "Who designs them?", say: ["Radia briefs, chooses and iterates. Claude writes the code.", "Same method as Jinx, the visual agent she built at Sillage."] },
@@ -2027,6 +2061,7 @@
     crm: { pill: "How does the routing work?", say: ["This is the plumbing between the product, <b>HubSpot</b> and the sales team."], q: ["c1", "c2", "c3", "c4"] },
     claude: { pill: "What are these agents?", say: ["<b>Claude Code</b> is Anthropic's coding agent. These five agents are Radia's. Pick a prompt in the chat to see one work."], q: ["a1", "a2", "a3"] },
     content: { pill: "How is this made?", say: ["Six short animations, all written in code. Click one to play it."], q: ["m1", "m2", "m3"] },
+    glorious: { pill: "What is Glorious Pipeline?", say: ["This is <b>Glorious Pipeline</b>, Radia's latest project: her agentic workspace, packaged so another team can install it."], q: ["g1", "g2", "g3", "g4"] },
     about: { pill: "Ask me about Radia", say: ["That's Radia. Founding sales, and the person who built everything on this computer."], q: ["built", "tools", "contact"] },
   };
   let capRun = null, capCtx = "desk";

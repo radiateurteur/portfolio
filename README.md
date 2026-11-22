@@ -2,7 +2,7 @@
 
 An interactive portfolio that behaves like a Mac: a lock screen, a calm desktop, a dock, and apps that open full screen, one at a time. The visitor is in control: nothing opens by itself.
 
-Static site, no build step: `index.html`, `styles.css`, `app.js`, `reach.js`, `motion.js`, `flows.js`, `assets/`.
+Static site, no build step: `index.html`, `styles.css`, `app.js`, `reach.js`, `motion.js`, `flows.js`, `glorious.js`, `assets/`.
 
 ## Preview locally
 
@@ -23,6 +23,7 @@ Open it through a local server (not by double-clicking the file), so images and 
 | Sillage Reach | A view-only replica of the product: sidebar navigation, Today, Dialer, Inbox, Campaigns, Performance, Events, Settings, mailbox gauge. Buttons that would change data only show "View only — this is a demo". |
 | Data & Scoring | Every tool built in Cargo, drawn as a flow with a record travelling through it. Four groups: Scoring, Enrichment, Pipeline, Knowledge base. |
 | CRM & PLG automation | HubSpot-style diagrams: PLG engine (product + Stripe → HubSpot), inbound routing, retention alerts, CRM structure. |
+| Glorious Pipeline | Her latest project: the agentic workspace packaged as a kit. An animated diagram of the machine as a building, the one-paste install typed in a terminal, and a LinkedIn button (the kit is private). |
 | Content & Design | Six motion pieces coded in HTML/CSS/GSAP, with a player (play, pause, seek), plus three stills. |
 | Captain | A scripted guide (no AI call). It lives in a pill at the bottom right, knows which app is open, and answers "how does this work?" questions about it. |
 
