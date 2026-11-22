@@ -1,471 +1,682 @@
 /* ═══════════════════════════════════════════════════════════
-   Glorious Pipeline — the machine drawn as a building,
-   plus the one-paste install typed in a terminal.
+   Glorious Pipeline — a small code editor you can click:
+   the workspace files on the left, a file in the middle,
+   Claude Code on the right with prompts that play a scenario.
+   Every file and every answer here is written for the demo.
    ═══════════════════════════════════════════════════════════ */
 (() => {
   "use strict";
-  const W = 1040,
-    H = 560;
   const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const bot = (w, fill) =>
-    `<svg width="${w}" viewBox="-1 -3 16 13" shape-rendering="crispEdges" aria-hidden="true"><g fill="${fill}"><rect x="2" y="0" width="10" height="7"/><rect x="0" y="3" width="14" height="2"/><rect x="2" y="7" width="1" height="2"/><rect x="4" y="7" width="1" height="2"/><rect x="9" y="7" width="1" height="2"/><rect x="11" y="7" width="1" height="2"/></g><rect x="4" y="2" width="1" height="2" fill="#1a0f0b"/><rect x="9" y="2" width="1" height="2" fill="#1a0f0b"/></svg>`;
-  const at = (cls, x, y, w, h, html, extra = "") =>
-    `<div class="${cls}" ${extra} style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">${html}</div>`;
-
-  const AGENTS = [
-    ["ICP scorer", "#d97757"],
-    ["List builder", "#3da5bb"],
-    ["CRM keeper", "#e2a93a"],
-    ["Copywriter", "#2fb67c"],
-    ["Inbound router", "#e58a9c"],
-    ["Reporter", "#7fa7e0"],
-  ];
-  const SKILLS = ["discover", "plan", "review", "score", "write", "report"];
-  const GUARDS = [
-    ["✋", "No send without a human"],
-    ["⛑", "Backup + dry run first"],
-    ["◔", "Credit ceiling"],
-    ["✉", "No email leaks"],
-  ];
-  const PLUGS = ["HubSpot", "Cargo", "Slack", "Notion"];
-  const STEPS = [
-    "Discover",
-    "Vision",
-    "Plan",
-    "Pre-mortem",
-    "Build ×3",
-    "Review trio",
-    "Visual check",
-    "One message",
-  ];
-  const CAPS = [
-    ["pipe", "The pipeline: every task goes through the same eight steps."],
-    [
-      "trio",
-      "Three AI reviewers read every change: security, architecture, spec.",
-    ],
-    ["skills", "Recipes: skills any agent can pick up and follow."],
-    [
-      "souls",
-      "Agents with souls: a job, rules, and a personality that stays the same.",
-    ],
-    ["rules", "The rules on the roof: what every agent must respect."],
-    ["guards", "Guards at the door: hooks that block what must never happen."],
-    ["plugs", "Plugs: the tools the agents can reach, through MCP."],
-    ["clock", "Scheduled agents: some jobs run on their own, on a timer."],
+  const bot = (w) =>
+    `<svg width="${w}" viewBox="-1 -3 16 13" shape-rendering="crispEdges" aria-hidden="true"><g fill="#d97757"><rect x="2" y="0" width="10" height="7"/><rect x="0" y="3" width="14" height="2"/><rect x="2" y="7" width="1" height="2"/><rect x="4" y="7" width="1" height="2"/><rect x="9" y="7" width="1" height="2"/><rect x="11" y="7" width="1" height="2"/></g><rect x="4" y="2" width="1" height="2" fill="#1a0f0b"/><rect x="9" y="2" width="1" height="2" fill="#1a0f0b"/></svg>`;
+  const agent = (name, description, tools, body, soul) => [
+    "---",
+    `name: ${name}`,
+    `description: ${description}`,
+    `tools: ${tools}`,
+    "---",
+    ...body,
+    "",
+    `soul: ${soul}`,
   ];
 
-  function stageHTML() {
-    return (
-      `<svg class="gl-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path class="gl-loop" d="M955 240 C 955 224, 880 232, 880 204 L 880 112 C 880 62, 800 48, 742 48"/><path class="gl-loop-on" d="M955 240 C 955 224, 880 232, 880 204 L 880 112 C 880 62, 800 48, 742 48"/></svg>` +
-      // roof
-      at(
-        "gl-part gl-roof",
-        150,
-        22,
-        590,
-        54,
-        `<b>RULES</b><span>the house rules every agent reads first</span>`,
-        'data-p="rules"',
-      ) +
-      // floor 3 · souls
-      at(
-        "gl-part gl-floor",
-        130,
-        86,
-        630,
-        96,
-        `<h6>Agents with souls</h6><div class="gl-row">${AGENTS.map(([n, c]) => `<div class="gl-agent">${bot(34, c)}<small>${n}</small></div>`).join("")}</div>`,
-        'data-p="souls"',
-      ) +
-      // floor 2 · skills
-      at(
-        "gl-part gl-floor",
-        130,
-        192,
-        630,
-        82,
-        `<h6>Recipes · skills</h6><div class="gl-row">${SKILLS.map((s) => `<div class="gl-skill"><i></i>${s}</div>`).join("")}</div>`,
-        'data-p="skills"',
-      ) +
-      // floor 1 · review trio
-      at(
-        "gl-part gl-floor",
-        130,
-        284,
-        630,
-        92,
-        `<h6>Review trio</h6><div class="gl-row gl-row--trio">${["Security", "Architecture", "Spec"].map((r) => `<div class="gl-rev"><i class="gl-light"></i>${r}</div>`).join("")}<div class="gl-grade"><span>🟢</span><span>🟡</span><span>🟠</span><span>🔴</span><em>confidence</em></div></div>`,
-        'data-p="trio"',
-      ) +
-      // left tower · guards
-      at(
-        "gl-part gl-tower",
-        20,
-        86,
-        100,
-        290,
-        `<h6>Guards<br>hooks</h6>${GUARDS.map(([g, t]) => `<div class="gl-guard" title="${t}"><i>${g}</i><small>${t}</small></div>`).join("")}`,
-        'data-p="guards"',
-      ) +
-      // right tower · plugs
-      at(
-        "gl-part gl-tower gl-tower--r",
-        770,
-        86,
-        100,
-        290,
-        `<h6>Plugs<br>MCP</h6>${PLUGS.map((p) => `<div class="gl-plug"><i></i>${p}</div>`).join("")}`,
-        'data-p="plugs"',
-      ) +
-      // clock · scheduled agents
-      at(
-        "gl-part gl-clock",
-        890,
-        86,
-        130,
-        130,
-        `<div class="gl-face"><i class="gl-hand"></i></div><small>Scheduled agents<br>GitHub Actions</small>`,
-        'data-p="clock"',
-      ) +
-      // red bin · learning loop
-      at(
-        "gl-part gl-bin",
-        890,
-        240,
-        130,
-        104,
-        `<div class="gl-binic">▥</div><b>Red bin</b><small>every human correction becomes a rule</small>`,
-        'data-p="bin"',
-      ) +
-      // conveyor · pipeline
-      at(
-        "gl-part gl-pipe",
-        20,
-        392,
-        1000,
-        84,
-        `<h6>The pipeline</h6><div class="gl-steps">${STEPS.map((s, i) => `<div class="gl-step" data-s="${i}">${s}</div>`).join('<span class="gl-arrow">→</span>')}</div>`,
-        'data-p="pipe"',
-      ) +
-      `<i class="gl-token"></i><i class="gl-spark"></i>` +
-      `<div class="gl-final">✓ Done. Here is what to check.</div>` +
-      `<div class="gl-caps">${CAPS.map(([, c]) => `<p>${c}</p>`).join("")}<p>The grade says how much human attention the work still needs.</p><p>A human correction goes in the red bin, and comes back as a rule for every agent.</p></div>`
-    );
+  const A = ".claude/agents/",
+    S = ".claude/skills/",
+    HK = ".claude/hooks/";
+  const FILES = {
+    "CLAUDE.md": [
+      "# House rules",
+      "Every agent reads this first.",
+      "",
+      "- Explain in plain words, short sentences.",
+      "- Nothing leaves without a human: drafts only.",
+      "- Read contexte/ before writing to anyone.",
+      "- Change only what the task needs.",
+      "- A human correction goes in the red bin,",
+      "  and becomes a rule in this file.",
+    ],
+    [A + "agent-creator.md"]: agent(
+      "agent-creator",
+      "Builds a new agent from a short interview.",
+      "Read, Write, Skill",
+      [
+        "Ask what the agent does, what it must never do,",
+        "and in which voice. Then write its file and give",
+        "it a soul with the create-soul skill.",
+      ],
+      "The Architect. Patient, asks before it builds.",
+    ),
+    [A + "security-reviewer.md"]: agent(
+      "security-reviewer",
+      "Reads a change for security only.",
+      "Read, Grep",
+      [
+        "Report what could leak, break access or expose",
+        "data. Never edits anything.",
+      ],
+      "The Lockpick. Suspicious by trade, polite about it.",
+    ),
+    [A + "architecture-reviewer.md"]: agent(
+      "architecture-reviewer",
+      "Reads a change for structure only.",
+      "Read, Grep",
+      [
+        "Look for duplication, tangled modules and broken",
+        "conventions. Never edits anything.",
+      ],
+      "The Surveyor. Likes straight lines.",
+    ),
+    [A + "specification-reviewer.md"]: agent(
+      "specification-reviewer",
+      "Checks the change does what was asked.",
+      "Read, Grep",
+      ["No less than the ticket, and no more.", "Never edits anything."],
+      "The Notary. Reads the ticket twice.",
+    ),
+    [A + "feature-implementer.md"]: agent(
+      "feature-implementer",
+      "Builds one step of the plan, in its own worktree.",
+      "Read, Write, Edit, Bash",
+      ["One step, one commit. Never pushes."],
+      "The Mason. One brick at a time.",
+    ),
+    [A + "icp-scorer.md"]: agent(
+      "icp-scorer",
+      "Scores accounts on the grid.",
+      "Read, Skill, mcp: cargo, hubspot",
+      [
+        "Gather facts, each with a proof. Never invent one.",
+        "Run a pilot first. Show it. Wait for a yes.",
+      ],
+      "The Assayer. Weighs everything, trusts nothing unproven.",
+    ),
+    [A + "copywriter.md"]: agent(
+      "copywriter",
+      "Writes outreach in each rep's own voice.",
+      "Read, Write",
+      ["Read contexte/voice/ first.", "One idea per message. Drafts only."],
+      "The Ghostwriter. Disappears behind the rep.",
+    ),
+    [A + "boussole.md"]: agent(
+      "boussole",
+      "Guide. Walks a new team through the whole setup.",
+      "Read, Write, Skill",
+      ["One step at a time. Ask, then do.", "Works in English and in French."],
+      "Boussole. Calm, never in a hurry, knows where north is.",
+    ),
+    [S + "create-soul/SKILL.md"]: [
+      "# create-soul",
+      "Give an agent a personality that lasts.",
+      "",
+      "1. Ask for its voice, its values, what it refuses.",
+      "2. Propose three souls. The human picks one.",
+      "3. Write it as the last line of the agent file.",
+    ],
+    [S + "code-reviewer/SKILL.md"]: [
+      "# code-reviewer",
+      "Three reviewers, at the same time, on one change.",
+      "",
+      "- security-reviewer",
+      "- architecture-reviewer",
+      "- specification-reviewer",
+      "",
+      "Merge their findings into one message.",
+      "Give one grade: 🟢 🟡 🟠 🔴",
+      "It says how much human attention is still needed.",
+    ],
+    [S + "scoring-grid/SKILL.md"]: [
+      "# scoring-grid",
+      "Knock-out gates first. Then a weighted score.",
+      "",
+      "- The AI gathers facts, each with a proof.",
+      "- A fixed script computes the score.",
+      "- Tiers: Gold, Silver, Bronze, Excluded.",
+      "",
+      "Always pilot on a few accounts before a full run.",
+    ],
+    [S + "enrichment-cascade/SKILL.md"]: [
+      "# enrichment-cascade",
+      "Check the person first. Spend second.",
+      "",
+      "1. Still at the company? Right role?",
+      "2. Cheap provider.",
+      "3. Expensive provider, only if nothing was found.",
+      "",
+      "Keep the source of every value.",
+    ],
+    [HK + "gtm-send-guard.sh"]: [
+      "#!/bin/bash",
+      "# Runs before any tool that sends to a person.",
+      "",
+      'if is_send "$TOOL"; then',
+      '  echo "Blocked: drafts only, a human must approve." >&2',
+      "  exit 2",
+      "fi",
+    ],
+    [HK + "crm-bulk-write-guard.sh"]: [
+      "#!/bin/bash",
+      "# Runs before a bulk write to the CRM.",
+      "",
+      'if [ ! -f "$BACKUP" ] || [ "$DRY_RUN" != "ok" ]; then',
+      '  echo "Blocked: backup + dry run first." >&2',
+      "  exit 2",
+      "fi",
+    ],
+    [HK + "credit-ceiling.sh"]: [
+      "#!/bin/bash",
+      "# Stops a run that would spend past the ceiling.",
+      "",
+      'if [ "$ESTIMATE" -gt "$CEILING" ]; then',
+      '  echo "Blocked: over the credit ceiling." >&2',
+      "  exit 2",
+      "fi",
+    ],
+    [HK + "team-email-guard.sh"]: [
+      "#!/bin/bash",
+      "# No teammate's email goes to an outside service.",
+      "",
+      'if leaks_team_email "$PAYLOAD"; then',
+      '  echo "Blocked: a teammate\'s email was leaving." >&2',
+      "  exit 2",
+      "fi",
+    ],
+    ".mcp.json": [
+      "{",
+      '  "mcpServers": {',
+      '    "hubspot": { "type": "http" },',
+      '    "cargo":   { "type": "http" },',
+      '    "slack":   { "type": "http" },',
+      '    "notion":  { "type": "http" }',
+      "  }",
+      "}",
+    ],
+    "contexte/icp.md": [
+      "# Who we sell to",
+      "B2B companies with a sales team that prospects.",
+      "",
+      "## Knock-out gates",
+      "- sells to businesses",
+      "- in a zone we cover",
+      "- not already a customer",
+      "",
+      "## Persona 1",
+      "The person who runs the GTM tooling.",
+    ],
+    "contexte/personas.md": [
+      "# Personas",
+      "",
+      "1. The operator: runs the tools, feels the pain.",
+      "2. The leader: owns the number, signs.",
+      "",
+      "Write to the operator first.",
+    ],
+    "contexte/voice/claire.md": [
+      "# Claire's voice",
+      "",
+      "- First name, short sentences.",
+      "- One idea per message.",
+      '- Never "I hope this finds you well".',
+      "- Signs with her first name only.",
+    ],
+  };
+  const KEEPER = agent(
+    "crm-keeper",
+    "Finds and merges duplicate records in the CRM.",
+    "Read, mcp: hubspot",
+    ["Backup first. Dry run next.", "Merge only sure matches, in small waves."],
+    "The Archivist. Careful, a bit dry, hates duplicates.",
+  );
+  const PROMPTS = [
+    ["agent", "Create an agent that cleans CRM duplicates"],
+    ["review", "Review my PR"],
+    ["send", "Send this email to the prospect"],
+    ["score", "Score 200 accounts"],
+    ["boussole", "Boussole, set this up at my new company"],
+  ];
+
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  /** Tiny syntax colouring: enough to read like an editor. */
+  function paint(line, path, i, lines) {
+    const t = esc(line);
+    if (path.endsWith(".sh"))
+      return /^\s*#/.test(line)
+        ? `<i class="c-c">${t}</i>`
+        : t
+            .replace(/("[^"]*")/g, '<i class="c-s">$1</i>')
+            .replace(/\b(if|then|fi|exit|echo)\b/g, '<i class="c-k">$1</i>');
+    if (path.endsWith(".json"))
+      return t
+        .replace(/("[^"]*")(\s*:)/g, '<i class="c-k">$1</i>$2')
+        .replace(/: ("[^"]*")/g, ': <i class="c-s">$1</i>');
+    if (line === "---") return `<i class="c-c">---</i>`;
+    const fm = lines.indexOf("---") === 0 && i < lines.indexOf("---", 1);
+    if (fm) return t.replace(/^([a-z]+)(:)/, '<i class="c-k">$1</i>$2');
+    if (/^#/.test(line)) return `<i class="c-h">${t}</i>`;
+    if (/^soul:/.test(line)) return `<i class="c-soul">${t}</i>`;
+    return t;
+  }
+
+  /** Cancelable, pausable sequence of waits and tweens. */
+  class Seq {
+    constructor() {
+      this.items = new Set();
+      this.dead = false;
+      this.paused = false;
+    }
+    wait(s) {
+      return new Promise((res) => {
+        if (this.dead) return;
+        const c = gsap.delayedCall(RM ? Math.min(s, 0.12) : s, () => {
+          this.items.delete(c);
+          if (!this.dead) res();
+        });
+        if (this.paused) c.pause();
+        this.items.add(c);
+      });
+    }
+    tween(target, vars) {
+      const t = gsap.to(target, RM ? { ...vars, duration: 0.01 } : vars);
+      if (this.paused) t.pause();
+      this.items.add(t);
+      return t;
+    }
+    pause() {
+      this.paused = true;
+      this.items.forEach((x) => x.pause());
+    }
+    resume() {
+      this.paused = false;
+      this.items.forEach((x) => x.resume());
+    }
+    kill() {
+      this.dead = true;
+      this.items.forEach((x) => x.kill());
+      this.items.clear();
+    }
   }
 
   function mount(root, opts = {}) {
+    const files = { ...FILES };
     root.innerHTML = `
-      <div class="glo">
-        <div class="glo__scroll"><div class="glo__box"><div class="gl-stage">${stageHTML()}</div></div></div>
-        <div class="glo__ctl"><span>The machine, drawn as a building</span><button class="glo__pp" aria-label="Pause">❚❚ Pause</button><button class="glo__re" aria-label="Replay">↻ Replay</button></div>
-        <div class="glo__row">
-          <div class="gl-term" aria-label="One-paste install">
-            <div class="gl-term__bar"><i></i><i></i><i></i><span>claude · your-gtm-workspace</span><button class="gl-term__re" aria-label="Replay the install">↻</button></div>
-            <div class="gl-term__body"></div>
-          </div>
-          <div class="gl-cta">
-            <img src="assets/glorious/loki.webp" alt="The Glorious Pipeline mascot: the pixel Claude Code creature with golden horns and a green cape" width="84" height="84">
-            <b>Want the kit?</b>
-            <p>It is private, and shared on request. English and French.</p>
-            <a class="cta" href="${opts.url || "#"}" target="_blank" rel="noopener">Ask me on LinkedIn ↗</a>
-          </div>
+      <div class="gp">
+        <header class="gp__top">
+          <img src="assets/glorious/loki.webp" width="34" height="34" alt="">
+          <p><b>Glorious Pipeline</b> — an agentic Claude Code machine any GTM team can install.</p>
+          <a class="gp__cta" href="${opts.url || "#"}" target="_blank" rel="noopener">Want the kit? Ask me on LinkedIn ↗</a>
+        </header>
+        <div class="gp__ide">
+          <details class="gp__files" open><summary>Explorer <span>your-gtm-workspace</span></summary><div class="gp__tree"></div></details>
+          <section class="gp__editor" aria-label="Editor"><div class="gp__tabs"></div><pre class="gp__code" tabindex="0"></pre></section>
+          <section class="gp__chat" aria-label="Claude Code">
+            <header>${bot(26)}<b>Claude Code</b><span class="gp__state"></span><button class="gp__pp" disabled aria-label="Pause">❚❚</button><button class="gp__re" disabled aria-label="Replay">↻</button></header>
+            <div class="gp__msgs" aria-live="polite"><p class="gp__hint">Open a file, or try a prompt <span>↓</span></p></div>
+            <div class="gp__prompts">${PROMPTS.map(([id, t]) => `<button data-run="${id}">${t}</button>`).join("")}</div>
+          </section>
         </div>
+        <footer class="gp__status"><span>⎇ main</span><span>4 guards on</span><span>4 plugs connected</span><span class="gp__sp"></span><span>Markdown</span><span>EN · FR</span></footer>
       </div>`;
     const $ = (s) => root.querySelector(s),
       $$ = (s) => [...root.querySelectorAll(s)];
-    const st = $(".gl-stage"),
-      box = $(".glo__box");
-    const part = (p) => $(`[data-p="${p}"]`);
+    const tree = $(".gp__tree"),
+      code = $(".gp__code"),
+      msgs = $(".gp__msgs"),
+      pp = $(".gp__pp"),
+      re = $(".gp__re");
+    let seq = null,
+      current = null,
+      last = null;
 
-    /* ── the building ── */
-    const tl = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 0.5 });
-    const caps = $$(".gl-caps p");
-    let shown = null;
-    const cap = (i, t) => {
-      if (shown !== null)
-        tl.to(caps[shown], { opacity: 0, y: -6, duration: 0.25 }, t);
-      tl.fromTo(
-        caps[i],
-        { opacity: 0, y: 8 },
-        { opacity: 1, y: 0, duration: 0.35 },
-        t + 0.15,
-      );
-      shown = i;
-    };
-    const glow = (el, t, c = "#e9b949") =>
-      tl.fromTo(
-        el,
-        { boxShadow: "0 0 0 0 rgba(0,0,0,0)" },
-        {
-          boxShadow: `0 0 0 2px ${c}, 0 0 26px ${c}66`,
-          duration: 0.3,
-          yoyo: true,
-          repeat: 1,
-          repeatDelay: 1.0,
-        },
-        t,
-      );
-    caps.forEach((c) => tl.set(c, { opacity: 0 }, 0));
-    const pos = (el) => {
-      const a = el.getBoundingClientRect(),
-        b = st.getBoundingClientRect(),
-        k = b.width / W;
-      return {
-        x: (a.left - b.left + a.width / 2) / k,
-        y: (a.top - b.top) / k - 12,
-      };
-    };
-    const pts = $$(".gl-step").map(pos);
-    // 1 · the building assembles, bottom to top, one caption per part
-    let t = 0.2;
-    CAPS.forEach(([p], i) => {
-      const el = part(p),
-        from =
-          p === "rules"
-            ? { y: -40 }
-            : p === "guards"
-              ? { x: -40 }
-              : p === "plugs" || p === "clock"
-                ? { x: 40 }
-                : { y: 30 };
-      tl.fromTo(
-        el,
-        { opacity: 0, ...from },
-        { opacity: 1, x: 0, y: 0, duration: 0.55, ease: "back.out(1.4)" },
-        t,
-      );
-      cap(i, t);
-      glow(el, t + 0.35);
-      const kids = el.querySelectorAll(
-        ".gl-agent, .gl-skill, .gl-rev, .gl-guard, .gl-plug, .gl-step",
-      );
-      if (kids.length)
-        tl.fromTo(
-          kids,
-          { opacity: 0, y: 8 },
-          { opacity: 1, y: 0, duration: 0.3, stagger: 0.05 },
-          t + 0.25,
-        );
-      t += 1.25;
-    });
-    tl.fromTo(
-      part("bin"),
-      { opacity: 0, x: 40 },
-      { opacity: 1, x: 0, duration: 0.5, ease: "back.out(1.4)" },
-      t - 0.9,
-    );
-    tl.fromTo(
-      $(".gl-hand"),
-      { rotation: 0 },
-      { rotation: 720, duration: 12, ease: "none" },
-      0,
-    );
-    // 2 · one task rides the pipeline
-    const tok = $(".gl-token"),
-      steps = $$(".gl-step"),
-      lights = $$(".gl-light");
-    tl.set(tok, { x: pts[0].x, y: pts[0].y, opacity: 0 }, 0);
-    tl.set(lights, { backgroundColor: "#33444b" }, 0);
-    cap(0, t);
-    tl.to(tok, { opacity: 1, duration: 0.2 }, t);
-    steps.forEach((s, i) => {
-      if (i)
-        tl.to(
-          tok,
-          { x: pts[i].x, y: pts[i].y, duration: 0.42, ease: "power2.inOut" },
-          t,
-        );
-      t += i ? 0.42 : 0.2;
-      tl.fromTo(
-        s,
-        { backgroundColor: "rgba(255,255,255,.06)", color: "#b9c7cc" },
-        {
-          backgroundColor: i === 7 ? "#2fb67c" : "#d97757",
-          color: "#fff",
-          duration: 0.25,
-        },
-        t,
-      );
-      if (i === 5) {
-        cap(1, t);
-        ["#2fb67c", "#2fb67c", "#e9b949"].forEach((c, k) =>
-          tl.to(
-            lights[k],
-            { backgroundColor: c, boxShadow: `0 0 12px ${c}`, duration: 0.25 },
-            t + 0.25 + k * 0.35,
-          ),
-        );
-        tl.fromTo(
-          $$(".gl-grade span")[1],
-          { scale: 1 },
-          {
-            scale: 1.7,
-            duration: 0.3,
-            yoyo: true,
-            repeat: 1,
-            ease: "back.out(3)",
-          },
-          t + 1.35,
-        );
-        cap(8, t + 1.4);
-        t += 2.6;
-      } else t += 0.3;
-    });
-    tl.fromTo(
-      $(".gl-final"),
-      { opacity: 0, y: 10, scale: 0.9 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(2)" },
-      t,
-    );
-    tl.to(tok, { opacity: 0, duration: 0.2 }, t);
-    t += 1.6;
-    // 3 · the red bin: a correction becomes a rule
-    const loop = $(".gl-loop-on"),
-      len = loop.getTotalLength(),
-      spark = $(".gl-spark"),
-      o = { p: 0 };
-    loop.style.strokeDasharray = len;
-    cap(9, t);
-    glow(part("bin"), t, "#e2574c");
-    tl.fromTo(
-      loop,
-      { strokeDashoffset: len },
-      { strokeDashoffset: 0, duration: 1.5, ease: "power1.inOut" },
-      t + 0.3,
-    );
-    tl.fromTo(
-      o,
-      { p: 0 },
-      {
-        p: 1,
-        duration: 1.5,
-        ease: "power1.inOut",
-        onUpdate: () => {
-          const q = loop.getPointAtLength(len * o.p);
-          gsap.set(spark, { x: q.x, y: q.y });
-        },
-      },
-      t + 0.3,
-    );
-    tl.fromTo(spark, { opacity: 0 }, { opacity: 1, duration: 0.2 }, t + 0.3);
-    tl.to(spark, { opacity: 0, duration: 0.2 }, t + 1.8);
-    glow(part("rules"), t + 1.8, "#e2574c");
-    tl.to(caps[9], { opacity: 0, duration: 0.3 }, t + 4.6);
-    tl.to({}, { duration: 0.4 }, t + 4.8);
-
-    const fit = () => (st.style.transform = `scale(${box.clientWidth / W})`);
-    const ro = new ResizeObserver(() => requestAnimationFrame(fit));
-    ro.observe(box);
-    fit();
-    const sync = () =>
-      ($(".glo__pp").textContent = tl.paused() ? "▶ Play" : "❚❚ Pause");
-    $(".glo__pp").addEventListener("click", () => {
-      tl.paused(!tl.paused());
-      sync();
-    });
-    $(".glo__re").addEventListener("click", () => {
-      tl.play(0);
-      sync();
-    });
-
-    /* ── the one-paste install ── */
-    const body = $(".gl-term__body");
-    const PROMPT =
-      "Read the guide in this kit and set up this workspace with me, one step at a time. Ask before anything that sends or writes.";
-    const LINES = [
-      ["gl-t--agent", "● <b>Boussole</b> · guide agent"],
-      [
-        "gl-t--say",
-        "Hello, I'm Boussole. I'll take you through the setup, one step at a time. First: who is on your team?",
-      ],
-      ["gl-t--ok", "rules written for your team"],
-      ["gl-t--ok", "agents created, each with a soul"],
-      ["gl-t--ok", "guards switched on"],
-      ["gl-t--ok", "plugs connected"],
-      ["gl-t--ok", "pipeline tested on a first task"],
-      ["gl-t--done", "Your machine is ready."],
-    ];
-    let calls = [];
-    const later = (s, fn) => calls.push(gsap.delayedCall(s, fn));
-    function install() {
-      calls.forEach((c) => c.kill());
-      calls = [];
-      body.innerHTML = `<div class="gl-t gl-t--prompt"><span>❯</span><span class="tx"></span><i class="gl-cur"></i></div>`;
-      const tx = body.querySelector(".tx");
-      const add = (cls, html) => {
-        const d = document.createElement("div");
-        d.className = "gl-t " + cls;
-        d.innerHTML = html;
-        body.appendChild(d);
-        body.scrollTop = body.scrollHeight;
-        if (!RM)
-          gsap.fromTo(
-            d,
-            { opacity: 0, y: 5 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.25,
-              clearProps: "opacity,transform",
-            },
-          );
-      };
-      if (RM) {
-        tx.textContent = PROMPT;
-        body.querySelector(".gl-cur").remove();
-        LINES.forEach(([c, h]) => add(c, h));
-        return;
-      }
-      for (let i = 2; i <= PROMPT.length + 1; i += 2)
-        later(0.5 + i * 0.022, () => (tx.textContent = PROMPT.slice(0, i)));
-      let d = 0.5 + PROMPT.length * 0.022 + 0.5;
-      later(d, () => body.querySelector(".gl-cur")?.remove());
-      LINES.forEach(([c, h], k) => {
-        d += k < 2 ? 0.7 : 0.55;
-        later(d, () => add(c, h));
+    /* ── explorer ── */
+    function drawTree(flash) {
+      const dirs = new Set();
+      let html = "";
+      const order = Object.keys(files);
+      const seen = [];
+      order.forEach((p) => {
+        const parts = p.split("/");
+        parts.slice(0, -1).forEach((_, d) => {
+          const dir = parts.slice(0, d + 1).join("/");
+          if (!dirs.has(dir)) {
+            dirs.add(dir);
+            seen.push(["d", dir, d]);
+          }
+        });
+        seen.push(["f", p, parts.length - 1]);
       });
+      // folders first at the root, loose files after, like an editor
+      const rootFiles = seen.filter(([k, p]) => k === "f" && !p.includes("/"));
+      const rest = seen.filter(([k, p]) => !(k === "f" && !p.includes("/")));
+      [...rest, ...rootFiles].forEach(([k, p, d]) => {
+        const name = p.split("/").pop();
+        html +=
+          k === "d"
+            ? `<div class="gp-dir" style="--d:${d}"><i>▾</i>${name}</div>`
+            : `<button class="gp-file ${p === current ? "on" : ""}" data-path="${p}" style="--d:${d}"><i class="gp-ic gp-ic--${name.split(".").pop()}"></i>${name}</button>`;
+      });
+      tree.innerHTML = html;
+      if (flash) {
+        const b = tree.querySelector(`[data-path="${flash}"]`);
+        if (b) {
+          tree.parentNode.scrollTop = Math.max(0, b.offsetTop - 80);
+          if (!RM)
+            gsap.fromTo(
+              b,
+              { backgroundColor: "rgba(233,185,73,.55)" },
+              {
+                backgroundColor: "rgba(233,185,73,0)",
+                duration: 1.6,
+                clearProps: "backgroundColor",
+              },
+            );
+        }
+      }
     }
-    $(".gl-term__re").addEventListener("click", install);
+    const lineHTML = (path, lines) =>
+      lines
+        .map(
+          (l, i) =>
+            `<span class="gp-l"><em>${i + 1}</em>${paint(l, path, i, lines) || " "}</span>`,
+        )
+        .join("");
+    function openFile(path, mark) {
+      if (!files[path]) return;
+      current = path;
+      $$(".gp-file").forEach((b) =>
+        b.classList.toggle("on", b.dataset.path === path),
+      );
+      $(".gp__tabs").innerHTML =
+        `<span class="on"><i class="gp-ic gp-ic--${path.split(".").pop()}"></i>${path.split("/").pop()}</span><small>${path}</small>`;
+      code.innerHTML = lineHTML(path, files[path]);
+      code.scrollTop = 0;
+      const ext = path.split(".").pop();
+      $(".gp__status span:nth-last-child(2)").textContent =
+        ext === "sh" ? "Shell" : ext === "json" ? "JSON" : "Markdown";
+      if (mark !== undefined) {
+        const l = code.children[mark];
+        if (l) {
+          l.classList.add("hit");
+          code.scrollTop = Math.max(0, l.offsetTop - 60);
+        }
+      } else if (!RM)
+        gsap.fromTo(code, { opacity: 0.4 }, { opacity: 1, duration: 0.25 });
+    }
+    tree.addEventListener("click", (e) => {
+      const b = e.target.closest(".gp-file");
+      if (b) openFile(b.dataset.path);
+    });
 
-    if (RM) tl.progress(0.52).pause();
-    else tl.play(0);
-    sync();
-    install();
-    return {
-      dispose: () => {
-        ro.disconnect();
-        tl.kill();
-        calls.forEach((c) => c.kill());
-      },
-      install: () => {
-        $(".gl-term").scrollIntoView({
-          block: "nearest",
-          behavior: RM ? "auto" : "smooth",
-        });
-        install();
-      },
-      focus: (p) => {
-        const el = part(p);
-        if (!el) return;
-        box.scrollIntoView({
-          block: "nearest",
-          behavior: RM ? "auto" : "smooth",
-        });
+    /* ── chat ── */
+    const add = (cls, html) => {
+      const d = document.createElement("div");
+      d.className = "gp-m " + cls;
+      d.innerHTML = html;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+      if (!RM)
         gsap.fromTo(
-          el,
-          { scale: 1 },
-          {
-            scale: 1.06,
-            duration: 0.25,
-            yoyo: true,
-            repeat: 3,
-            ease: "power2.out",
-            clearProps: "transform",
-          },
+          d,
+          { opacity: 0, y: 6 },
+          { opacity: 1, y: 0, duration: 0.25, clearProps: "opacity,transform" },
+        );
+      return d;
+    };
+    const say = (t) => add("gp-m--c", t);
+    const ok = (t) => add("gp-m--ok", t);
+    async function tool(q, name, arg, dur, res) {
+      const d = add(
+        "gp-m--tool",
+        `<span class="dot">●</span><b>${name}</b><span class="arg">(${arg})</span>`,
+      );
+      d.classList.add("run");
+      await q.wait(dur);
+      d.classList.remove("run");
+      d.classList.add("done");
+      if (res) add("gp-m--res", res);
+    }
+    /** A question from an agent, answered for the visitor after a beat. */
+    async function ask(q, who, question, answer) {
+      add("gp-m--q", `<small>${who} asks</small>${question}`);
+      await q.wait(1.1);
+      add("gp-m--u gp-m--auto", answer);
+      await q.wait(0.6);
+    }
+    async function bars(q, rows) {
+      const box = add(
+        "gp-m--bars",
+        rows
+          .map(([n]) => `<div><span>${n}</span><u><i></i></u><em></em></div>`)
+          .join(""),
+      );
+      const els = [...box.children];
+      await Promise.all(
+        rows.map(
+          ([, dur, verdict], k) =>
+            new Promise((res) =>
+              q.tween(els[k].querySelector("i"), {
+                width: "100%",
+                duration: dur,
+                ease: "power1.inOut",
+                onComplete: () => {
+                  els[k].classList.add("done");
+                  els[k].querySelector("em").textContent = "✓ " + verdict;
+                  res();
+                },
+              }),
+            ),
+        ),
+      );
+    }
+
+    const SCEN = {
+      async agent(q) {
+        say("On it. Handing this to <b>agent-creator</b>.");
+        openFile(A + "agent-creator.md");
+        await q.wait(0.9);
+        await ask(
+          q,
+          "agent-creator",
+          "What must it never do?",
+          "Merge anything without a backup",
+        );
+        await ask(
+          q,
+          "agent-creator",
+          "Which voice should it have?",
+          "Careful, a bit dry",
+        );
+        openFile(S + "create-soul/SKILL.md");
+        await tool(
+          q,
+          "Skill",
+          "create-soul",
+          1.1,
+          "soul picked: <b>The Archivist</b>",
+        );
+        const path = A + "crm-keeper.md";
+        const t = tool(q, "Write", path, 1.9);
+        files[path] = [];
+        const keys = Object.keys(files).filter((k) => k !== path),
+          pos = keys.indexOf(A + "copywriter.md");
+        const next = {};
+        keys.forEach((k, i) => {
+            if (i === pos) next[path] = [];
+            next[k] = files[k];
+          });
+        Object.keys(files).forEach((k) => delete files[k]);
+        Object.assign(files, next);
+        drawTree(path);
+        openFile(path);
+        for (let i = 1; i <= KEEPER.length; i++) {
+          files[path] = KEEPER.slice(0, i);
+          code.innerHTML =
+            lineHTML(path, files[path]) + '<span class="gp-cur"></span>';
+          await q.wait(0.16);
+        }
+        code.innerHTML = lineHTML(path, files[path]);
+        await t;
+        ok(
+          "<b>crm-keeper</b> is ready. It appeared in the explorer, soul included.",
         );
       },
+      async review(q) {
+        openFile(S + "code-reviewer/SKILL.md");
+        say("Three reviewers, at the same time.");
+        await q.wait(0.6);
+        await bars(q, [
+          ["security-reviewer", 2.2, "nothing leaks"],
+          ["architecture-reviewer", 3.0, "one duplication"],
+          ["specification-reviewer", 2.6, "matches the ticket"],
+        ]);
+        await q.wait(0.4);
+        add(
+          "gp-m--grade",
+          `<span>🟢</span><div><b>Merge confidence: high</b><small>0 blocking · 1 suggestion · read in 30 seconds</small></div>`,
+        );
+        await q.wait(0.6);
+        ok("One message, one grade. You decide.");
+      },
+      async send(q) {
+        await tool(q, "Bash", "send-email --to prospect", 1.0);
+        openFile(HK + "gtm-send-guard.sh", 4);
+        add(
+          "gp-m--block",
+          `<span>🚫</span><div><b>Blocked by gtm-send-guard</b><small>Drafts only. A human must approve.</small></div>`,
+        );
+        await q.wait(1.6);
+        say("Fair. I'll write it, you'll send it.");
+        await tool(q, "Write", "drafts/prospect-email.md", 0.9);
+        ok("Saved as a draft. It is waiting for you.");
+      },
+      async score(q) {
+        openFile(S + "scoring-grid/SKILL.md", 7);
+        say("Pilot first: 15 accounts.");
+        await bars(q, [
+          [
+            "pilot · 15 accounts",
+            1.8,
+            "4 Gold · 6 Silver · 3 Bronze · 2 Excluded",
+          ],
+        ]);
+        await ask(
+          q,
+          "icp-scorer",
+          "Looks good? Shall I run the rest?",
+          "Yes, run the 200",
+        );
+        await bars(q, [["full run · 200 accounts", 2.6, "200 scored"]]);
+        add(
+          "gp-m--tiers",
+          [
+            ["Gold", 38, "g"],
+            ["Silver", 71, "s"],
+            ["Bronze", 56, "b"],
+            ["Excluded", 35, "x"],
+          ]
+            .map(
+              ([n, v, c]) =>
+                `<div class="${c}" style="flex:${v}"><b>${v}</b>${n}</div>`,
+            )
+            .join(""),
+        );
+        await q.wait(0.9);
+        await tool(q, "HubSpot", "bulk update · 200 companies", 0.9);
+        openFile(HK + "crm-bulk-write-guard.sh", 4);
+        add(
+          "gp-m--block gp-m--warn",
+          `<span>✋</span><div><b>crm-bulk-write-guard</b><small>Backup and dry run first.</small></div>`,
+        );
+        await q.wait(1.3);
+        await tool(q, "Bash", "backup companies.csv", 0.8, "backup saved");
+        await tool(q, "HubSpot", "dry run", 1.0, "200 would change · 0 errors");
+        ok("Tiers written to the CRM, with a backup behind them.");
+      },
+      async boussole(q) {
+        openFile(A + "boussole.md");
+        say("Handing this to <b>Boussole</b>, the guide.");
+        await q.wait(0.7);
+        await ask(
+          q,
+          "Boussole",
+          "What do you sell, and to whom?",
+          "Software, to B2B sales teams",
+        );
+        await ask(
+          q,
+          "Boussole",
+          "Which tools do you already use?",
+          "HubSpot and Slack",
+        );
+        await ask(q, "Boussole", "Who approves before anything is sent?", "Me");
+        const steps = [
+          ["CLAUDE.md", "house rules written"],
+          ["contexte/icp.md", "your target, in plain words"],
+          [".mcp.json", "HubSpot and Slack plugged in"],
+          [HK + "gtm-send-guard.sh", "guards switched on"],
+          [A + "copywriter.md", "first agent, with its soul"],
+        ];
+        const list = add(
+          "gp-m--check",
+          steps.map(([, t]) => `<div><i>○</i>${t}</div>`).join(""),
+        );
+        for (let k = 0; k < steps.length; k++) {
+          openFile(steps[k][0]);
+          drawTree(steps[k][0]);
+          await q.wait(0.85);
+          list.children[k].classList.add("done");
+          list.children[k].firstChild.textContent = "✓";
+        }
+        ok("Your machine is ready. In English or in French.");
+      },
     };
+
+    const setState = (cls, txt) => {
+      $(".gp__state").className = "gp__state " + cls;
+      $(".gp__state").textContent = txt;
+    };
+    function run(id) {
+      if (!SCEN[id]) return;
+      seq?.kill();
+      const q = (seq = new Seq());
+      last = id;
+      msgs.innerHTML = "";
+      $$(".gp__prompts button").forEach((b) =>
+        b.classList.toggle("on", b.dataset.run === id),
+      );
+      root.querySelector(".gp").classList.add("has-run");
+      add("gp-m--u", PROMPTS.find(([k]) => k === id)[1]);
+      pp.disabled = re.disabled = false;
+      pp.textContent = "❚❚";
+      setState("run", "working");
+      q.wait(0.5)
+        .then(() => SCEN[id](q))
+        .then(() => {
+          if (q.dead) return;
+          setState("done", "done");
+          pp.disabled = true;
+        });
+    }
+    $(".gp__prompts").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (b) run(b.dataset.run);
+    });
+    re.addEventListener("click", () => last && run(last));
+    pp.addEventListener("click", () => {
+      if (!seq || seq.dead) return;
+      if (seq.paused) {
+        seq.resume();
+        pp.textContent = "❚❚";
+        setState("run", "working");
+      } else {
+        seq.pause();
+        pp.textContent = "▶";
+        setState("pause", "paused");
+      }
+    });
+
+    if (matchMedia("(max-width: 760px)").matches) $(".gp__files").open = false;
+    drawTree();
+    openFile("CLAUDE.md");
+    return { dispose: () => seq?.kill(), run, open: openFile };
   }
 
   window.Glorious = { mount };
